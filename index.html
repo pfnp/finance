@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Трекер кредитных карт</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+  <h1>Трекер кредитных карт</h1>
+
+  <div class="input-group">
+    <input id="cardName" placeholder="Название карты" />
+    <input id="amount" type="number" placeholder="Сумма долга" />
+    <input id="purchaseDate" type="date" />
+    <input id="period" type="number" placeholder="Беспроцентный период (дней)" />
+    <button onclick="addDebt()">Добавить</button>
+  </div>
+
+  <ul id="debtList"></ul>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
