@@ -3,39 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credit Tracker</title>
+<title>Credit Manager</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app">
-  <h1>Credit Tracker</h1>
+  <h1>Credit Manager</h1>
 
   <div class="input-group">
     <input id="cardName" placeholder="Карта">
     <input id="amount" type="number" placeholder="Долг">
     <input id="limit" type="number" placeholder="Лимит">
-    <input id="days" type="number" placeholder="Дни">
-    <button onclick="addDebt()">+</button>
+    <input id="dueDate" type="date" placeholder="Дата погашения">
+    <button onclick="addCard()">+</button>
   </div>
 
   <div class="stats">
-    <div id="total">0 ₽</div>
-    <div id="free">0 ₽</div>
+    <div id="totalDebt">0 ₽</div>
+    <div id="totalFree">0 ₽</div>
   </div>
 
-  <canvas id="chart" width="320" height="320"></canvas>
-
-  <ul id="debtList"></ul>
+  <div id="cardList"></div>
 </div>
 
-<!-- модальное окно -->
+<!-- Модальное окно -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
-    <h3>Редактировать</h3>
+    <h3>Редактировать карту</h3>
     <input id="editAmount" type="number" placeholder="Долг">
     <input id="editLimit" type="number" placeholder="Лимит">
-    <input id="editDays" type="number" placeholder="Дни">
+    <input id="editDueDate" type="date" placeholder="Дата погашения">
     <button onclick="saveEdit()">Сохранить</button>
   </div>
 </div>
