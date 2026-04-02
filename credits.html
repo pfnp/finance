@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кредитки</title>
+
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div class="app">
+  <h1>Кредитки</h1>
+
+  <!-- Ввод кредитки -->
+  <div class="input-group">
+    <input id="creditName" placeholder="Название карты">
+    <input id="creditAmount" type="number" placeholder="Долг">
+    <button onclick="addCredit()">Добавить</button>
+  </div>
+
+  <!-- Итог -->
+  <div class="totals">
+    Общий долг: <span id="creditTotal">0</span>
+  </div>
+
+  <!-- Список -->
+  <div id="creditList"></div>
+</div>
+
+<!-- Навигация -->
+<nav>
+  <a href="index.html">Финансы</a>
+  <a href="credits.html">Кредитки</a>
+  <a href="subs.html">Подписки</a>
+</nav>
+
+<script src="app.js?v=1"></script>
+</body>
+</html>

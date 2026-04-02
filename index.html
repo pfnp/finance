@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Финансы</title>
+
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+<div class="app">
+  <h1>Финансы</h1>
+
+  <!-- Ввод кошелька -->
+  <div class="input-group">
+    <input id="walletName" placeholder="Название кошелька">
+    <input id="walletAmount" type="number" placeholder="Сумма">
+    <button onclick="addWallet()">Добавить</button>
+  </div>
+
+  <!-- Итог -->
+  <div class="totals">
+    Итого: <span id="walletTotal">0</span>
+  </div>
+
+  <!-- Список -->
+  <div id="walletList"></div>
+</div>
+
+<!-- Навигация -->
+<nav>
+  <a href="index.html">Финансы</a>
+  <a href="credits.html">Кредитки</a>
+  <a href="subs.html">Подписки</a>
+</nav>
+
+<script src="app.js?v=1"></script>
+</body>
+</html>
