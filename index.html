@@ -18,6 +18,17 @@ body {
   font-family: -apple-system;
 }
 
+/* ЭКРАНЫ */
+.screen {
+  display: none;
+  padding-bottom: 80px;
+}
+
+.active {
+  display: block;
+}
+
+/* HEADER */
 .header {
   padding: 20px;
   font-size: 24px;
@@ -29,6 +40,7 @@ body {
   font-weight: bold;
 }
 
+/* КНОПКА */
 .add-btn {
   margin: 20px;
   padding: 15px;
@@ -38,6 +50,7 @@ body {
   border-radius: 12px;
 }
 
+/* СПИСОК */
 .list {
   padding: 20px;
 }
@@ -53,7 +66,6 @@ body {
   padding: 12px;
   border-radius: 10px;
   background: #1a1a1a;
-  transition: 0.2s;
 }
 
 .delete {
@@ -77,6 +89,7 @@ body {
   opacity: 0.6;
 }
 
+/* МОДАЛКА */
 .modal-bg {
   position: fixed;
   top: 0;
@@ -112,18 +125,52 @@ input, select {
   border-radius: 10px;
   color: black;
 }
+
+/* ТАБ БАР */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #1a1a1a;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #333;
+}
+
+.tab {
+  color: gray;
+}
+
+.tab.active {
+  color: yellow;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">Финансы</div>
-<div class="balance" id="balance">0 ₽</div>
+<!-- ОПЕРАЦИИ -->
+<div id="operations" class="screen active">
+  <div class="header">Финансы</div>
+  <div class="balance" id="balance">0 ₽</div>
+  <div class="add-btn" onclick="openModal()">Добавить</div>
+  <div class="list" id="list"></div>
+</div>
 
-<div class="add-btn" onclick="openModal()">Добавить</div>
+<!-- ПОДПИСКИ -->
+<div id="subscriptions" class="screen">
+  <div class="header">Подписки</div>
+</div>
 
-<div class="list" id="list"></div>
+<!-- КАРТЫ -->
+<div id="cards" class="screen">
+  <div class="header">Карты</div>
+</div>
 
+<!-- МОДАЛКА -->
 <div class="modal-bg" id="modalBg" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <input id="name" placeholder="Название">
@@ -141,8 +188,23 @@ input, select {
   </div>
 </div>
 
+<!-- TAB BAR -->
+<div class="tabbar">
+  <div class="tab active" onclick="switchTab('operations', this)">Операции</div>
+  <div class="tab" onclick="switchTab('subscriptions', this)">Подписки</div>
+  <div class="tab" onclick="switchTab('cards', this)">Карты</div>
+</div>
+
 <script>
 let transactions = JSON.parse(localStorage.getItem('tx')) || [];
+
+function switchTab(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
 
 function render() {
   const list = document.getElementById('list');
