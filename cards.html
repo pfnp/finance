@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Карты</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">Карты</div>
+<div class="add-btn" onclick="openModal()">Добавить карту</div>
+<div class="list" id="cardsList"></div>
+
+<div class="modal-bg" id="modalBg" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <input id="cardName" placeholder="Название карты">
+    <input id="cardBalance" placeholder="Баланс">
+    <div class="save" onclick="saveCard()">Сохранить</div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <a class="tab" href="index.html">Операции</a>
+  <a class="tab" href="subscriptions.html">Подписки</a>
+  <a class="tab active" href="cards.html">Карты</a>
+</div>
+
+<script>
+let cards = JSON.parse(localStorage.getItem('cards'))||[];
+
+function openModal(){document.getElementById('modalBg').style.display='block';}
+function closeModal(){document.getElementById('modalBg').style.display='none';}
+
+function renderCards(){
+  const list=document.getElementById('cardsList'); list.innerHTML='';
+  cards.forEach(c=>{
+    const div=document.createElement('div');
+    div.className='item';
+    div.innerHTML=`<div>${c.name}</div><div>${c.balance} ₽</div>`;
+    list.appendChild(div);
+  });
+}
+
+function saveCard(){
+  const name=document.getElementById('cardName').value;
+  const balance=parseInt(document.getElementById('cardBalance').value);
+  if(!name||!balance) return;
+  cards.push({name,balance});
+  localStorage.setItem('cards',JSON.stringify(cards));
+  document.getElementById('cardName').value='';
+  document.getElementById('cardBalance').value='';
+  closeModal();
+  renderCards();
+}
+
+renderCards();
+</script>
+</body>
+</html>
