@@ -1,0 +1,80 @@
+body {
+  font-family:-apple-system;
+  background:#f4ecd8;
+  margin:0;
+}
+
+.app {
+  max-width:400px;
+  margin:40px auto;
+  background:rgba(255,255,255,0.8);
+  padding:20px;
+  border-radius:16px;
+  backdrop-filter:blur(10px);
+}
+
+h1 { text-align:center; }
+
+.input-group {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+input, select, button {
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+button {
+  background:black;
+  color:white;
+}
+
+.card, li {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  margin-top:10px;
+  background:white;
+  border-radius:12px;
+}
+
+.card-buttons {
+  display:flex;
+  gap:5px;
+}
+
+.totals {
+  margin-top:10px;
+  text-align:center;
+  font-weight:bold;
+}
+
+.modal {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display:none;
+  background:rgba(0,0,0,0.3);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal.show { display:flex; }
+
+.modal-content {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+}
+
+a {
+  display:block;
+  margin-top:20px;
+  text-align:center;
+}

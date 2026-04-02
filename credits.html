@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кредитки</title>
+
+<link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+
+<div class="app">
+<h1>Кредитки</h1>
+
+<div class="input-group">
+<input id="cardName" placeholder="Название">
+<input id="amount" type="number" placeholder="Долг">
+<input id="limit" type="number" placeholder="Лимит">
+<input id="dueDate" type="date">
+
+<select id="wallet">
+<option value="💳">Карта 💳</option>
+<option value="💵">Наличные 💵</option>
+<option value="📈">Инвестиции 📈</option>
+</select>
+
+<button onclick="addCard()">Добавить</button>
+</div>
+
+<div class="totals">
+Долг: <span id="totalDebt">0</span>
+</div>
+
+<div id="cardList"></div>
+
+<a href="index.html">← Назад</a>
+</div>
+
+<!-- МОДАЛКА -->
+<div id="modal" class="modal">
+<div class="modal-content">
+
+<input id="editName">
+<input id="editValue" type="number">
+
+<button onclick="saveEdit()">Сохранить</button>
+
+</div>
+</div>
+
+<script src="app.js?v=3"></script>
+</body>
+</html>
