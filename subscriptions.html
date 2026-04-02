@@ -4,13 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Подписки</title>
-
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="header">Подписки</div>
@@ -32,6 +30,37 @@
   <a class="tab" href="cards.html">Карты</a>
 </div>
 
-<script src="subs.js"></script>
+<script>
+let subscriptions = JSON.parse(localStorage.getItem('subs'))||[];
+
+function openModal(){document.getElementById('modalBg').style.display='block';}
+function closeModal(){document.getElementById('modalBg').style.display='none';}
+
+function renderSubscriptions(){
+  const list=document.getElementById('subsList'); list.innerHTML='';
+  subscriptions.forEach(s=>{
+    const div=document.createElement('div');
+    div.className='item';
+    div.innerHTML=`<div>${s.name} — ${s.amount} ₽</div><div>Следующее: ${s.date}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function saveSubscription(){
+  const name=document.getElementById('subsName').value;
+  const amount=parseInt(document.getElementById('subsAmount').value);
+  const date=document.getElementById('subsDate').value;
+  if(!name||!amount||!date) return;
+  subscriptions.push({name,amount,date});
+  localStorage.setItem('subs',JSON.stringify(subscriptions));
+  document.getElementById('subsName').value='';
+  document.getElementById('subsAmount').value='';
+  document.getElementById('subsDate').value='';
+  closeModal();
+  renderSubscriptions();
+}
+
+renderSubscriptions();
+</script>
 </body>
 </html>
