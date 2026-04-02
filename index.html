@@ -6,10 +6,8 @@
 
 <title>Финансы</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="icon.png">
 
 <style>
@@ -44,20 +42,18 @@ body {
   padding: 20px;
 }
 
+.wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
 .item {
   display: flex;
   justify-content: space-between;
   padding: 12px;
   border-radius: 10px;
   background: #1a1a1a;
-  position: relative;
-  z-index: 1;
   transition: 0.2s;
-}
-
-.wrapper {
-  position: relative;
-  margin-bottom: 10px;
 }
 
 .delete {
@@ -73,12 +69,12 @@ body {
   border-radius: 10px;
 }
 
-.income {
-  color: #4cd964;
-}
+.income { color: #4cd964; }
+.expense { color: #ff3b30; }
 
-.expense {
-  color: #ff3b30;
+.category {
+  font-size: 12px;
+  opacity: 0.6;
 }
 
 .modal-bg {
@@ -101,7 +97,7 @@ body {
   border-radius: 20px 20px 0 0;
 }
 
-input {
+input, select {
   width: 100%;
   padding: 12px;
   margin-bottom: 10px;
@@ -131,6 +127,15 @@ input {
 <div class="modal-bg" id="modalBg" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <input id="name" placeholder="Название">
+    
+    <select id="category">
+      <option>Еда</option>
+      <option>Транспорт</option>
+      <option>Подписки</option>
+      <option>Развлечения</option>
+      <option>Другое</option>
+    </select>
+
     <input id="amount" placeholder="Сумма (+ доход / - расход)">
     <div class="save" onclick="save()">Сохранить</div>
   </div>
@@ -163,7 +168,10 @@ function render() {
     const colorClass = t.amount > 0 ? 'income' : 'expense';
 
     div.innerHTML = `
-      <span>${t.name}</span>
+      <div>
+        <div>${t.name}</div>
+        <div class="category">${t.category}</div>
+      </div>
       <span class="${colorClass}">${t.amount}</span>
     `;
 
@@ -211,11 +219,12 @@ function closeModal() {
 
 function save() {
   const name = document.getElementById('name').value;
+  const category = document.getElementById('category').value;
   const amount = parseInt(document.getElementById('amount').value);
 
   if (!name || !amount) return;
 
-  transactions.push({ name, amount });
+  transactions.push({ name, category, amount });
 
   localStorage.setItem('tx', JSON.stringify(transactions));
 
