@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #1c1c1e;
+  color: white;
+}
+
+.app {
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+input, select {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2c2c2e;
+  color: white;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #0a84ff;
+  color: white;
+}
+
+.totals {
+  margin: 16px 0;
+  padding: 12px;
+  background: #2c2c2e;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.item {
+  background: #2c2c2e;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #2c2c2e;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}

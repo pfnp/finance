@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Постоянные расходы</title>
+
+<link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+
+<div class="app">
+  <h1>Постоянные расходы</h1>
+
+  <div class="input-group">
+    <input id="subName" placeholder="Название">
+    <input id="subPrice" type="number" placeholder="Сумма">
+  </div>
+
+  <div class="input-group">
+    <input id="subDate" type="date">
+  </div>
+
+  <button onclick="addSub()">Добавить</button>
+
+  <div class="totals">
+    В месяц: <span id="subTotal">0</span>
+  </div>
+
+  <div id="subList"></div>
+</div>
+
+<nav>
+  <a href="index.html">Финансы</a>
+  <a href="credits.html">Кредитки</a>
+  <a href="subs.html">Расходы</a>
+</nav>
+
+<script src="app.js?v=4"></script>
+</body>
+</html>
