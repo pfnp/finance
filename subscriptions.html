@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Подписки</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header">Подписки</div>
+<div class="add-btn" onclick="openModal()">Добавить подписку</div>
+<div class="list" id="subsList"></div>
+
+<div class="modal-bg" id="modalBg" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <input id="subsName" placeholder="Название подписки">
+    <input type="date" id="subsDate">
+    <input id="subsAmount" placeholder="Сумма">
+    <div class="save" onclick="saveSubscription()">Сохранить</div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <a class="tab" href="index.html">Операции</a>
+  <a class="tab active" href="subscriptions.html">Подписки</a>
+  <a class="tab" href="cards.html">Карты</a>
+</div>
+
+<script src="subs.js"></script>
+</body>
+</html>
