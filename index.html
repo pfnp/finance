@@ -3,41 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Финансы</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon.png">
-
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- ОПЕРАЦИИ -->
-<div id="operations" class="screen active">
-  <div class="header">Финансы</div>
-  <div class="balance" id="balance">0 ₽</div>
-  <div class="add-btn" onclick="openModal()">Добавить</div>
-  <div class="list" id="list"></div>
-</div>
+<div class="header">Финансы</div>
+<div class="balance" id="balance">0 ₽</div>
+<div class="add-btn" onclick="openModal()">Добавить</div>
+<div class="list" id="list"></div>
 
-<!-- ПОДПИСКИ -->
-<div id="subscriptions" class="screen">
-  <div class="header">Подписки</div>
-</div>
-
-<!-- КАРТЫ -->
-<div id="cards" class="screen">
-  <div class="header">Карты</div>
-</div>
-
-<!-- МОДАЛКА -->
 <div class="modal-bg" id="modalBg" onclick="closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <input id="name" placeholder="Название">
-    
     <select id="category">
       <option>Еда</option>
       <option>Транспорт</option>
@@ -45,17 +28,15 @@
       <option>Развлечения</option>
       <option>Другое</option>
     </select>
-
     <input id="amount" placeholder="Сумма (+ доход / - расход)">
     <div class="save" onclick="save()">Сохранить</div>
   </div>
 </div>
 
-<!-- TAB BAR -->
 <div class="tabbar">
-  <div class="tab active" onclick="switchTab('operations', this)">Операции</div>
-  <div class="tab" onclick="switchTab('subscriptions', this)">Подписки</div>
-  <div class="tab" onclick="switchTab('cards', this)">Карты</div>
+  <a class="tab active" href="index.html">Операции</a>
+  <a class="tab" href="subscriptions.html">Подписки</a>
+  <a class="tab" href="cards.html">Карты</a>
 </div>
 
 <script src="app.js"></script>
