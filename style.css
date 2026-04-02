@@ -1,0 +1,97 @@
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: -apple-system;
+}
+
+.screen { display: none; padding-bottom: 80px; }
+.screen.active { display: block; }
+
+.header { padding: 20px; font-size: 24px; }
+.balance { padding: 0 20px; font-size: 32px; font-weight: bold; }
+
+.add-btn {
+  margin: 20px;
+  padding: 15px;
+  background: yellow;
+  color: black;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.list { padding: 20px; }
+
+.wrapper { position: relative; margin-bottom: 10px; }
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 10px;
+  background: #1a1a1a;
+  transition: 0.2s;
+}
+
+.delete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: #ff3b30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.income { color: #4cd964; }
+.expense { color: #ff3b30; }
+
+.category { font-size: 12px; opacity: 0.6; }
+
+.modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #222;
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+.save {
+  background: yellow;
+  padding: 15px;
+  text-align: center;
+  border-radius: 10px;
+  color: black;
+}
+
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: #1a1a1a;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #333;
+}
+
+.tab { color: gray; }
+.tab.active { color: yellow; }
