@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Финансы">
+  <meta name="theme-color" content="#1e293b">
+  <title>Учет финансов</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23666'/><stop offset='100%25' style='stop-color:%23111'/></linearGradient></defs><rect width='180' height='180' rx='40' fill='url(%23g)'/><text x='90' y='125' font-size='110' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>₽</text></svg>">
+  <style>
+    :root {
+      --bg: #f2f4f7;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e9ecef;
+      --input-bg: #f8fafc;
+      --hover: #f1f5f9;
+      --gradient-start: #1e293b;
+      --gradient-end: #334155;
+    }
+    .dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --border: #334155;
+      --input-bg: #1e293b;
+      --hover: #334155;
+      --gradient-start: #334155;
+      --gradient-end: #475569;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      height: 100vh;
+      max-width: 100vw;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .bottom-nav {
+      display: flex;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 8px 16px 20px;
+      gap: 8px;
+      flex-shrink: 0;
+      justify-content: space-around;
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 12px;
+      transition: 0.2s;
+      font-weight: 500;
+    }
+    .nav-btn.active {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .nav-btn span:first-child { font-size: 20px; }
+
+    .page {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    .page.active { display: flex; }
+
+    .header {
+      background: var(--card);
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      text-align: center;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    .settings-btn {
+      background: none; border: none; font-size: 22px; cursor: pointer; padding: 6px; border-radius: 10px;
+    }
+
+    .balance-card {
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      margin: 12px 16px;
+      padding: 20px 18px;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: 0.2s;
+    }
+    .balance-card:active { transform: scale(0.99); }
+    .balance-label {
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
+    }
+    .balance-amount { font-size: 36px; font-weight: 700; margin-top: 4px; }
+    .income-expense-row { display: flex; gap: 10px; margin-top: 12px; }
+    .income-box, .expense-box, .asset-box {
+      background: rgba(255,255,255,0.12);
+      padding: 10px 12px;
+      border-radius: 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .income-box span:first-child, .expense-box span:first-child, .asset-box span:first-child { font-size: 11px; opacity: 0.8; }
+    .income-box .amount { color: #86efac; }
+    .expense-box .amount { color: #fda4af; }
+    .asset-box .amount { color: #fde047; }
+    .box-amount { font-size: 17px; font-weight: 650; }
+
+    .form-container {
+      background: var(--card); margin: 0 16px 10px; padding: 16px; border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02); flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
+    }
+    .type-toggle { display: flex; background: var(--hover); border-radius: 12px; padding: 4px; gap: 4px; }
+    .type-option {
+      flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      cursor: pointer; color: var(--text-secondary); border: none; background: transparent; transition: 0.2s;
+    }
+    .type-option.active { background: var(--card); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .input-row { display: flex; gap: 8px; align-items: center; }
+    .input-row input, .input-row select {
+      padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-size: 15px;
+      background: var(--input-bg); color: var(--text); outline: none; min-width: 0;
+    }
+    .amount-field { flex: 2; } .comment-field { flex: 3; } .category-select { flex: 2; }
+    .add-btn {
+      background: var(--text); color: var(--card); border: none; padding: 12px 16px; border-radius: 12px;
+      font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;
+    }
+    .add-btn:active { opacity: 0.8; transform: scale(0.96); }
+
+    .transactions-wrapper {
+      flex: 1; margin: 0 16px 12px; background: var(--card); border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02); overflow-y: auto; padding: 8px 4px;
+    }
+    .date-group { margin-bottom: 4px; }
+    .date-header { padding: 12px 16px 6px; font-weight: 600; font-size: 14px; color: var(--text-secondary); }
+    .transaction-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;
+      border-bottom: 1px solid var(--border); gap: 10px;
+    }
+    .transaction-icon { width: 40px; height: 40px; background: var(--hover); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .transaction-info { flex: 1; min-width: 0; }
+    .transaction-category { font-weight: 600; font-size: 16px; color: var(--text); }
+    .transaction-time { font-size: 12px; color: var(--text-secondary); }
+    .transaction-comment { font-size: 13px; color: var(--text-secondary); }
+    .transaction-amount { font-weight: 700; font-size: 17px; white-space: nowrap; }
+    .income-amount { color: #16a34a; } .expense-amount { color: #dc2626; } .asset-amount { color: #ca8a04; }
+    .delete-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #cbd5e1; padding: 6px; }
+    .empty-message { text-align: center; color: var(--text-secondary); margin-top: 40px; padding: 20px; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+      z-index: 100; display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--card); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
+      padding: 20px 16px 30px; max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+    }
+    .modal h3 { font-size: 18px; font-weight: 700; text-align: center; color: var(--text); }
+    .modal input, .modal select { padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-size: 15px; background: var(--input-bg); color: var(--text); }
+    .modal-buttons { display: flex; gap: 8px; }
+    .btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; font-size: 15px; }
+    .btn-primary { background: var(--text); color: var(--card); }
+    .btn-secondary { background: var(--hover); color: var(--text); }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+
+    .category-type-tabs { display: flex; gap: 6px; }
+    .cat-tab-btn {
+      flex: 1; padding: 14px 8px; border-radius: 14px; border: 2px solid var(--border); font-weight: 700;
+      font-size: 16px; background: var(--card); color: var(--text); cursor: pointer; transition: 0.2s;
+    }
+    .cat-tab-btn.active { border-color: var(--text); background: var(--text); color: var(--card); }
+    .category-list { display: flex; flex-direction: column; gap: 8px; }
+    .category-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--hover); border-radius: 12px; color: var(--text); }
+    .category-item button { background: none; border: none; font-size: 16px; cursor: pointer; }
+
+    .recurring-item {
+      display: flex; justify-content: space-between; align-items: center; padding: 14px;
+      background: var(--hover); border-radius: 14px; margin-bottom: 8px; color: var(--text);
+    }
+    .recurring-info { display: flex; flex-direction: column; gap: 4px; }
+    .recurring-name { font-weight: 600; }
+    .recurring-date { font-size: 13px; color: var(--text-secondary); }
+    .recurring-amount { font-weight: 700; color: #dc2626; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <!-- Главная страница -->
+  <div class="page active" id="page-main">
+    <div class="header">
+      <div></div>
+      <h1>Финансы</h1>
+      <div class="header-buttons">
+        <button class="settings-btn" id="themeToggle">🌙</button>
+        <button class="settings-btn" id="openCategoriesBtn">⚙️</button>
+      </div>
+    </div>
+    <div class="balance-card" id="balanceCard">
+      <div class="balance-label">💳 Баланс</div>
+      <div class="balance-amount" id="balanceDisplay">0 ₽</div>
+      <div class="income-expense-row">
+        <div class="income-box"><span>Доходы (мес)</span><span class="box-amount amount" id="totalIncome">0</span></div>
+        <div class="expense-box"><span>Расходы (мес)</span><span class="box-amount amount" id="totalExpense">0</span></div>
+        <div class="asset-box"><span>Активы</span><span class="box-amount amount" id="totalAssets">0</span></div>
+      </div>
+    </div>
+    <div class="form-container">
+      <div class="type-toggle" id="typeToggle">
+        <button class="type-option active" data-type="income">📈 Доход</button>
+        <button class="type-option" data-type="expense">📉 Расход</button>
+        <button class="type-option" data-type="asset">💎 Актив</button>
+      </div>
+      <div class="input-row">
+        <input type="number" id="amountInput" class="amount-field" placeholder="Сумма" step="0.01" inputmode="decimal">
+        <input type="text" id="commentInput" class="comment-field" placeholder="Комментарий">
+        <select id="categorySelect" class="category-select"></select>
+        <button class="add-btn" id="addBtn">+</button>
+      </div>
+    </div>
+    <div class="transactions-wrapper" id="transactionsContainer"><div class="empty-message">Нет записей</div></div>
+  </div>
+
+  <!-- История баланса -->
+  <div class="page" id="page-history">
+    <div class="header"><div></div><h1>История баланса</h1><div></div></div>
+    <div class="transactions-wrapper" id="historyContainer" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- Постоянные расходы -->
+  <div class="page" id="page-recurring">
+    <div class="header"><div></div><h1>Регулярные платежи</h1><div></div></div>
+    <div style="padding:12px 16px; display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="recurringName" placeholder="Название" style="flex:2; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text);">
+        <input type="number" id="recurringAmount" placeholder="Сумма" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text);" step="0.01">
+      </div>
+      <div style="display:flex; gap:8px;">
+        <input type="date" id="recurringDate" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--input-bg); color:var(--text);">
+        <button class="add-btn" id="addRecurringBtn" style="flex:0 0 auto;">Добавить</button>
+      </div>
+    </div>
+    <div class="transactions-wrapper" id="recurringContainer" style="margin-top:0;"></div>
+  </div>
+
+  <!-- Нижняя навигация -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-page="main"><span>💰</span>Главная</button>
+    <button class="nav-btn" data-page="history"><span>📊</span>История</button>
+    <button class="nav-btn" data-page="recurring"><span>🔁</span>Платежи</button>
+  </div>
+</div>
+
+<!-- Модальное окно категорий -->
+<div class="modal-overlay" id="categoriesModal">
+  <div class="modal">
+    <h3>⚙️ Категории</h3>
+    <div class="category-type-tabs">
+      <button class="cat-tab-btn active" data-cattype="income">📈 Доходы</button>
+      <button class="cat-tab-btn" data-cattype="expense">📉 Расходы</button>
+      <button class="cat-tab-btn" data-cattype="asset">💎 Активы</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="modalNewCategory" placeholder="Новая категория">
+      <button class="btn btn-primary" id="modalAddCategoryBtn" style="flex:0 0 auto;">Добавить</button>
+    </div>
+    <div class="category-list" id="modalCategoryList"></div>
+    <button class="btn btn-secondary" id="closeCategoriesModal">Закрыть</button>
+  </div>
+</div>
+
+<!-- Модальное окно баланса -->
+<div class="modal-overlay" id="balanceModal">
+  <div class="modal">
+    <h3>💳 Корректировка</h3>
+    <p style="text-align:center; color:var(--text-secondary);">Текущий: <strong id="modalCurrentBalance" style="color:var(--text);">0</strong></p>
+    <input type="number" id="balanceAdjustInput" placeholder="Сумма" step="0.01">
+    <div class="modal-buttons">
+      <button class="btn btn-primary" id="increaseBalanceBtn">➕ Увеличить</button>
+      <button class="btn btn-danger" id="decreaseBalanceBtn">➖ Уменьшить</button>
+    </div>
+    <button class="btn btn-secondary" id="closeBalanceModal">Отмена</button>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const STORAGE = {
+      TRANSACTIONS: 'fv5_t',
+      INCOME_CATS: 'fv5_ic',
+      EXPENSE_CATS: 'fv5_ec',
+      ASSET_CATS: 'fv5_ac',
+      BALANCE_ADJ: 'fv5_ba',
+      RECURRING: 'fv5_rec',
+      THEME: 'fv5_theme'
+    };
+    const defaultCats = {
+      income: ['Зарплата','Фриланс','Подарки','Кэшбек','Другое'],
+      expense: ['Продукты','Транспорт','Кафе','Развлечения','Здоровье','Одежда','Дом','Другое'],
+      asset: ['Недвижимость','Автомобиль','Инвестиции','Накопления','Другое']
+    };
+
+    let state = {
+      transactions: [],
+      incomeCats: [...defaultCats.income],
+      expenseCats: [...defaultCats.expense],
+      assetCats: [...defaultCats.asset],
+      balanceAdj: 0,
+      recurring: [],
+      currentType: 'income',
+      editingCatType: 'income',
+      currentPage: 'main',
+      darkTheme: false
+    };
+
+    function load() {
+      try { state.transactions = JSON.parse(localStorage.getItem(STORAGE.TRANSACTIONS)) || []; } catch { state.transactions = []; }
+      try { state.incomeCats = JSON.parse(localStorage.getItem(STORAGE.INCOME_CATS)) || [...defaultCats.income]; } catch { state.incomeCats = [...defaultCats.income]; }
+      try { state.expenseCats = JSON.parse(localStorage.getItem(STORAGE.EXPENSE_CATS)) || [...defaultCats.expense]; } catch { state.expenseCats = [...defaultCats.expense]; }
+      try { state.assetCats = JSON.parse(localStorage.getItem(STORAGE.ASSET_CATS)) || [...defaultCats.asset]; } catch { state.assetCats = [...defaultCats.asset]; }
+      try { state.balanceAdj = parseFloat(localStorage.getItem(STORAGE.BALANCE_ADJ)) || 0; } catch { state.balanceAdj = 0; }
+      try { state.recurring = JSON.parse(localStorage.getItem(STORAGE.RECURRING)) || []; } catch { state.recurring = []; }
+      try { state.darkTheme = localStorage.getItem(STORAGE.THEME) === 'dark'; } catch { state.darkTheme = false; }
+      applyTheme();
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE.TRANSACTIONS, JSON.stringify(state.transactions));
+      localStorage.setItem(STORAGE.INCOME_CATS, JSON.stringify(state.incomeCats));
+      localStorage.setItem(STORAGE.EXPENSE_CATS, JSON.stringify(state.expenseCats));
+      localStorage.setItem(STORAGE.ASSET_CATS, JSON.stringify(state.assetCats));
+      localStorage.setItem(STORAGE.BALANCE_ADJ, state.balanceAdj);
+      localStorage.setItem(STORAGE.RECURRING, JSON.stringify(state.recurring));
+      localStorage.setItem(STORAGE.THEME, state.darkTheme ? 'dark' : 'light');
+    }
+
+    function applyTheme() {
+      document.body.classList.toggle('dark', state.darkTheme);
+      document.getElementById('themeToggle').textContent = state.darkTheme ? '☀️' : '🌙';
+    }
+
+    function fmt(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+    function esc(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+
+    // Месячные счетчики
+    function getMonthTransactions() {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      return state.transactions.filter(t => new Date(t.date) >= monthStart);
+    }
+
+    function calcTotals() {
+      const monthTx = getMonthTransactions();
+      let inc = 0, exp = 0, ast = 0;
+      monthTx.forEach(t => {
+        if (t.type === 'income') inc += t.amount;
+        else if (t.type === 'expense') exp += t.amount;
+        else if (t.type === 'asset') ast += t.amount;
+      });
+      const allAssets = state.transactions.filter(t => t.type === 'asset').reduce((s,t) => s + t.amount, 0);
+      const allInc = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
+      const allExp = state.transactions.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+      return { income: inc, expense: exp, assets: allAssets, balance: allInc - allExp + allAssets + state.balanceAdj };
+    }
+
+    function updateMainUI() {
+      const t = calcTotals();
+      document.getElementById('balanceDisplay').textContent = fmt(t.balance);
+      document.getElementById('totalIncome').textContent = fmt(t.income);
+      document.getElementById('totalExpense').textContent = fmt(t.expense);
+      document.getElementById('totalAssets').textContent = fmt(t.assets);
+      populateCategorySelect();
+      renderTransactions();
+    }
+
+    function getCats(type) {
+      if (type === 'income') return state.incomeCats;
+      if (type === 'expense') return state.expenseCats;
+      return state.assetCats;
+    }
+
+    function populateCategorySelect() {
+      const cats = getCats(state.currentType);
+      document.getElementById('categorySelect').innerHTML = cats.map(c => `<option>${c}</option>`).join('');
+    }
+
+    function renderTransactions() {
+      const container = document.getElementById('transactionsContainer');
+      if (!state.transactions.length) {
+        container.innerHTML = '<div class="empty-message">Нет записей</div>'; return;
+      }
+      const sorted = [...state.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+      const groups = {};
+      sorted.forEach(t => {
+        const d = new Date(t.date); d.setHours(0,0,0,0); const k = d.toISOString();
+        if (!groups[k]) groups[k] = []; groups[k].push(t);
+      });
+      let html = '';
+      Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a)).forEach(k => {
+        html += `<div class="date-group"><div class="date-header">${fmtDateHeader(groups[k][0].date)}</div>`;
+        groups[k].forEach(t => {
+          const cls = t.type==='income'?'income-amount':t.type==='expense'?'expense-amount':'asset-amount';
+          const sign = t.type==='income'?'+':t.type==='expense'?'-':'';
+          html += `<div class="transaction-item" data-id="${t.id}">
+            <div class="transaction-icon">${getIcon(t.category, t.type)}</div>
+            <div class="transaction-info">
+              <span class="transaction-category">${esc(t.category)}</span>
+              <span class="transaction-time">${fmtDateTime(t.date)}</span>
+              ${t.comment?`<span class="transaction-comment">${esc(t.comment)}</span>`:''}
+            </div>
+            <span class="transaction-amount ${cls}">${sign}${fmt(t.amount)}</span>
+            <button class="delete-btn" data-id="${t.id}">🗑️</button>
+          </div>`;
+        });
+        html += '</div>';
+      });
+      container.innerHTML = html;
+      container.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', e => {
+        e.stopPropagation();
+        state.transactions = state.transactions.filter(t => t.id !== +b.dataset.id);
+        save(); updateMainUI();
+      }));
+    }
+
+    function fmtDateTime(iso) {
+      const d = new Date(iso);
+      return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function fmtDateHeader(iso) {
+      const now = new Date(); now.setHours(0,0,0,0);
+      const d = new Date(iso); d.setHours(0,0,0,0);
+      const diff = (now - d) / 86400000;
+      if (diff === 0) return 'Сегодня';
+      if (diff === 1) return 'Вчера';
+      const m = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+      return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function getIcon(cat, type) {
+      const icons = {
+        'Зарплата':'💼','Фриланс':'💻','Подарки':'🎁','Кэшбек':'💳','Инвестиции':'📈',
+        'Продукты':'🛒','Транспорт':'🚗','Кафе':'☕','Развлечения':'🎬','Здоровье':'💊',
+        'Одежда':'👕','Дом':'🏠','Недвижимость':'🏢','Автомобиль':'🚘','Накопления':'🐷'
+      };
+      return icons[cat] || (type==='income'?'💰':type==='expense'?'💸':'💎');
+    }
+
+    function addTransaction() {
+      const amt = parseFloat(document.getElementById('amountInput').value.replace(',','.'));
+      if (isNaN(amt) || amt <= 0) return alert('Введите сумму');
+      const comment = document.getElementById('commentInput').value.trim();
+      const cat = document.getElementById('categorySelect').value;
+      state.transactions.push({
+        id: Date.now(), type: state.currentType, amount: amt, category: cat,
+        comment: comment || '', date: new Date().toISOString()
+      });
+      save(); updateMainUI();
+      document.getElementById('amountInput').value = '';
+      document.getElementById('commentInput').value = '';
+    }
+
+    // Навигация
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.currentPage = btn.dataset.page;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + state.currentPage).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (state.currentPage === 'history') renderHistory();
+        if (state.currentPage === 'recurring') renderRecurring();
+      });
+    });
+
+    // Тема
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      state.darkTheme = !state.darkTheme;
+      applyTheme();
+      save();
+    });
+
+    // Переключение типа
+    document.getElementById('typeToggle').addEventListener('click', e => {
+      if (e.target.classList.contains('type-option')) {
+        state.currentType = e.target.dataset.type;
+        document.querySelectorAll('#typeToggle .type-option').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        populateCategorySelect();
+      }
+    });
+
+    document.getElementById('addBtn').addEventListener('click', addTransaction);
+    document.getElementById('amountInput').addEventListener('keypress', e => { if (e.key==='Enter') addTransaction(); });
+
+    // Модалка категорий
+    function renderModalCats() {
+      const cats = getCats(state.editingCatType);
+      document.getElementById('modalCategoryList').innerHTML = cats.map(c => `
+        <div class="category-item"><span>${getIcon(c, state.editingCatType)} ${esc(c)}</span>
+        <button data-cat="${esc(c)}">🗑️</button></div>
+      `).join('');
+      document.querySelectorAll('#modalCategoryList button').forEach(b => b.addEventListener('click', () => {
+        const arr = getCats(state.editingCatType);
+        if (arr.length <= 1) return alert('Минимум 1 категория');
+        const idx = arr.indexOf(b.dataset.cat);
+        if (idx > -1) { arr.splice(idx,1); save(); renderModalCats(); updateMainUI(); }
+      }));
+    }
+
+    document.getElementById('openCategoriesBtn').addEventListener('click', () => {
+      state.editingCatType = state.currentType;
+      document.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.cattype === state.editingCatType));
+      renderModalCats();
+      document.getElementById('categoriesModal').classList.add('active');
+    });
+    document.getElementById('closeCategoriesModal').addEventListener('click', () => document.getElementById('categoriesModal').classList.remove('active'));
+    document.querySelectorAll('.cat-tab-btn').forEach(b => b.addEventListener('click', () => {
+      state.editingCatType = b.dataset.cattype;
+      document.querySelectorAll('.cat-tab-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      renderModalCats();
+    }));
+    document.getElementById('modalAddCategoryBtn').addEventListener('click', () => {
+      const name = document.getElementById('modalNewCategory').value.trim();
+      if (!name) return;
+      const arr = getCats(state.editingCatType);
+      if (arr.includes(name)) return alert('Уже есть');
+      arr.push(name);
+      save(); renderModalCats(); updateMainUI();
+      document.getElementById('modalNewCategory').value = '';
+    });
+
+    // Модалка баланса
+    document.getElementById('balanceCard').addEventListener('click', () => {
+      document.getElementById('modalCurrentBalance').textContent = fmt(calcTotals().balance);
+      document.getElementById('balanceModal').classList.add('active');
+    });
+    document.getElementById('closeBalanceModal').addEventListener('click', () => document.getElementById('balanceModal').classList.remove('active'));
+    document.getElementById('increaseBalanceBtn').addEventListener('click', () => {
+      const v = parseFloat(document.getElementById('balanceAdjustInput').value.replace(',','.'));
+      if (isNaN(v) || v <= 0) return alert('Введите сумму');
+      state.balanceAdj += v; save(); updateMainUI();
+      document.getElementById('balanceModal').classList.remove('active');
+    });
+    document.getElementById('decreaseBalanceBtn').addEventListener('click', () => {
+      const v = parseFloat(document.getElementById('balanceAdjustInput').value.replace(',','.'));
+      if (isNaN(v) || v <= 0) return alert('Введите сумму');
+      state.balanceAdj -= v; save(); updateMainUI();
+      document.getElementById('balanceModal').classList.remove('active');
+    });
+
+    // История баланса
+    function renderHistory() {
+      const container = document.getElementById('historyContainer');
+      const sorted = [...state.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+      if (!sorted.length) {
+        container.innerHTML = '<div class="empty-message">Нет данных</div>'; return;
+      }
+      let running = state.balanceAdj;
+      const daily = {};
+      sorted.forEach(t => {
+        const d = new Date(t.date); d.setHours(0,0,0,0);
+        const key = d.toISOString();
+        if (!daily[key]) daily[key] = { date: t.date, balance: running };
+        if (t.type === 'income') running += t.amount;
+        else if (t.type === 'expense') running -= t.amount;
+        else if (t.type === 'asset') running += t.amount;
+        daily[key].balance = running;
+      });
+      const days = Object.values(daily);
+      container.innerHTML = days.map(d => `
+        <div style="padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; color:var(--text);">
+          <span>${fmtDateHeader(d.date)}</span>
+          <strong style="color:${d.balance>=0?'#16a34a':'#dc2626'}">${fmt(d.balance)}</strong>
+        </div>
+      `).join('');
+    }
+
+    // Регулярные платежи
+    function renderRecurring() {
+      const container = document.getElementById('recurringContainer');
+      if (!state.recurring.length) {
+        container.innerHTML = '<div class="empty-message">Нет регулярных платежей</div>'; return;
+      }
+      const now = new Date(); now.setHours(0,0,0,0);
+      const sorted = [...state.recurring].sort((a,b) => new Date(a.nextDate) - new Date(b.nextDate));
+      container.innerHTML = sorted.map(r => {
+        const due = new Date(r.nextDate); due.setHours(0,0,0,0);
+        const daysLeft = Math.ceil((due - now) / 86400000);
+        let daysText = '';
+        if (daysLeft < 0) daysText = 'просрочено';
+        else if (daysLeft === 0) daysText = 'сегодня';
+        else if (daysLeft === 1) daysText = 'завтра';
+        else daysText = `через ${daysLeft} дн.`;
+        return `<div class="recurring-item">
+          <div class="recurring-info">
+            <span class="recurring-name">${esc(r.name)}</span>
+            <span class="recurring-date">📅 ${r.nextDate} (${daysText})</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="recurring-amount">${fmt(r.amount)}</span>
+            <button class="delete-btn" data-id="${r.id}">🗑️</button>
+          </div>
+        </div>`;
+      }).join('');
+      container.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', e => {
+        e.stopPropagation();
+        state.recurring = state.recurring.filter(r => r.id !== +b.dataset.id);
+        save(); renderRecurring();
+      }));
+    }
+
+    document.getElementById('addRecurringBtn').addEventListener('click', () => {
+      const name = document.getElementById('recurringName').value.trim();
+      const amount = parseFloat(document.getElementById('recurringAmount').value.replace(',','.'));
+      const date = document.getElementById('recurringDate').value;
+      if (!name || isNaN(amount) || !date) return alert('Заполните все поля');
+      state.recurring.push({ id: Date.now(), name, amount, nextDate: date });
+      save(); renderRecurring();
+      document.getElementById('recurringName').value = '';
+      document.getElementById('recurringAmount').value = '';
+      document.getElementById('recurringDate').value = '';
+    });
+
+    // Закрытие модалок по фону
+    document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => {
+      if (e.target === m) m.classList.remove('active');
+    }));
+
+    // Инициализация
+    load();
+    updateMainUI();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('data:application/javascript,'+encodeURIComponent('self.addEventListener("fetch",e=>e.respondWith(fetch(e.request)));'));
+    }
+  })();
+</script>
+</body>
+</html>
