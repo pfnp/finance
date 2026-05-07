@@ -8,7 +8,10 @@
   <meta name="apple-mobile-web-app-title" content="Финансы">
   <meta name="theme-color" content="#1e293b">
   <title>Учет финансов</title>
+  
+  <!-- Иконка для PWA (180x180 пикселей) -->
   <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23666'/><stop offset='100%25' style='stop-color:%23111'/></linearGradient></defs><rect width='180' height='180' rx='40' fill='url(%23g)'/><text x='90' y='125' font-size='110' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>₽</text></svg>">
+  
   <style>
     :root {
       --bg: #f2f4f7;
@@ -20,6 +23,8 @@
       --hover: #f1f5f9;
       --gradient-start: #1e293b;
       --gradient-end: #334155;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
     .dark {
       --bg: #0f172a;
@@ -41,29 +46,35 @@
       width: 100%;
       max-width: 100vw;
       overflow-x: hidden;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
-      height: 100vh;
       max-width: 100vw;
       -webkit-tap-highlight-color: transparent;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
     .app-container {
       width: 100%;
       max-width: 100vw;
-      height: 100vh;
+      height: 100%;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      padding-top: var(--safe-top);
     }
 
     .bottom-nav {
       display: flex;
       background: var(--card);
       border-top: 1px solid var(--border);
-      padding: 8px 16px 20px;
+      padding: 8px 16px calc(8px + var(--safe-bottom));
       gap: 8px;
       flex-shrink: 0;
       justify-content: space-around;
@@ -94,6 +105,7 @@
       flex-direction: column;
       flex: 1;
       overflow: hidden;
+      min-height: 0;
     }
     .page.active { display: flex; }
 
@@ -184,6 +196,7 @@
     .transactions-wrapper {
       flex: 1; margin: 0 16px 12px; background: var(--card); border-radius: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.02); overflow-y: auto; padding: 8px 4px;
+      -webkit-overflow-scrolling: touch;
     }
     .date-group { margin-bottom: 4px; }
     .date-header { padding: 12px 16px 6px; font-weight: 600; font-size: 14px; color: var(--text-secondary); }
@@ -209,7 +222,7 @@
     .modal-overlay.active { display: flex; }
     .modal {
       background: var(--card); width: 100%; max-width: 500px; border-radius: 24px 24px 0 0;
-      padding: 20px 16px 30px; max-height: 75vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
+      padding: 20px 16px 30px; max-height: 70vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;
     }
     .modal h3 { font-size: 18px; font-weight: 700; text-align: center; color: var(--text); }
     .modal input, .modal select { padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-size: 15px; background: var(--input-bg); color: var(--text); }
@@ -397,7 +410,6 @@
     function fmt(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
     function esc(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
-    // Месячные счетчики
     function getMonthTransactions() {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -406,11 +418,10 @@
 
     function calcTotals() {
       const monthTx = getMonthTransactions();
-      let inc = 0, exp = 0, ast = 0;
+      let inc = 0, exp = 0;
       monthTx.forEach(t => {
         if (t.type === 'income') inc += t.amount;
         else if (t.type === 'expense') exp += t.amount;
-        else if (t.type === 'asset') ast += t.amount;
       });
       const allAssets = state.transactions.filter(t => t.type === 'asset').reduce((s,t) => s + t.amount, 0);
       const allInc = state.transactions.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
@@ -515,7 +526,6 @@
       document.getElementById('commentInput').value = '';
     }
 
-    // Навигация
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         state.currentPage = btn.dataset.page;
@@ -528,14 +538,12 @@
       });
     });
 
-    // Тема
     document.getElementById('themeToggle').addEventListener('click', () => {
       state.darkTheme = !state.darkTheme;
       applyTheme();
       save();
     });
 
-    // Переключение типа
     document.getElementById('typeToggle').addEventListener('click', e => {
       if (e.target.classList.contains('type-option')) {
         state.currentType = e.target.dataset.type;
@@ -548,7 +556,6 @@
     document.getElementById('addBtn').addEventListener('click', addTransaction);
     document.getElementById('amountInput').addEventListener('keypress', e => { if (e.key==='Enter') addTransaction(); });
 
-    // Модалка категорий
     function renderModalCats() {
       const cats = getCats(state.editingCatType);
       document.getElementById('modalCategoryList').innerHTML = cats.map(c => `
@@ -586,7 +593,6 @@
       document.getElementById('modalNewCategory').value = '';
     });
 
-    // Модалка баланса
     document.getElementById('balanceCard').addEventListener('click', () => {
       document.getElementById('modalCurrentBalance').textContent = fmt(calcTotals().balance);
       document.getElementById('balanceModal').classList.add('active');
@@ -605,7 +611,6 @@
       document.getElementById('balanceModal').classList.remove('active');
     });
 
-    // История баланса
     function renderHistory() {
       const container = document.getElementById('historyContainer');
       const sorted = [...state.transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -632,7 +637,6 @@
       `).join('');
     }
 
-    // Регулярные платежи
     function renderRecurring() {
       const container = document.getElementById('recurringContainer');
       if (!state.recurring.length) {
@@ -678,12 +682,10 @@
       document.getElementById('recurringDate').value = '';
     });
 
-    // Закрытие модалок по фону
     document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => {
       if (e.target === m) m.classList.remove('active');
     }));
 
-    // Инициализация
     load();
     updateMainUI();
     if ('serviceWorker' in navigator) {
