@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#f4f5f9">
     <meta name="apple-mobile-web-app-title" content="Финансы">
     <meta name="description" content="Финансы — учёт кошельков, операций, платежей и аналитика">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-512.png">
+    <link rel="icon" type="image/png" href="./icon-512.png">
     <title>Финансы</title>
     <style>
         :root {
@@ -90,7 +93,7 @@
             --debt-neg-color: #f06a6a;
         }
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
-        html, body { height:100%; overflow:hidden; position:fixed; inset:0; width:100%; font-family:var(--font); background:var(--bg); color:var(--text); transition:background var(--t), color var(--t); }
+        html, body { height:100%; height:100dvh; overflow:hidden; position:fixed; inset:0; width:100%; font-family:var(--font); background:var(--bg); color:var(--text); transition:background var(--t), color var(--t); }
         html { background:var(--bg); }
         body { display:flex; flex-direction:column; background-image:var(--bg-grad); background-attachment:fixed; }
         input, textarea, select { -webkit-user-select:text; user-select:text; font-family:var(--font); }
@@ -301,7 +304,7 @@
             <div class="page active" id="page-home" data-page="home">
                 <div class="page-header" id="header-home">
                     <button class="header-btn ripple" id="btn-theme-home" aria-label="Сменить тему">🌙</button>
-                    <span class="page-title">Финансы</span>
+                    <span class="page-title center">Финансы</span>
                     <button class="header-btn accent ripple" id="btn-add-wallet" aria-label="Добавить кошелёк">+</button>
                 </div>
                 <div class="page-content" id="content-home"></div>
@@ -309,7 +312,7 @@
             <div class="page" id="page-analytics" data-page="analytics">
                 <div class="page-header" id="header-analytics">
                     <button class="header-btn ripple" id="btn-theme-analytics" aria-label="Сменить тему">🌙</button>
-                    <span class="page-title">Аналитика</span>
+                    <span class="page-title center">Аналитика</span>
                     <button class="header-btn ripple" id="btn-export-analytics" aria-label="Экспорт">⤓</button>
                 </div>
                 <div class="page-content" id="content-analytics"></div>
@@ -317,7 +320,7 @@
             <div class="page" id="page-payments" data-page="payments">
                 <div class="page-header" id="header-payments">
                     <button class="header-btn ripple" id="btn-theme-payments" aria-label="Сменить тему">🌙</button>
-                    <span class="page-title">Платежи</span>
+                    <span class="page-title center">Платежи</span>
                     <button class="header-btn accent ripple" id="btn-add-payment" aria-label="Добавить платёж">+</button>
                 </div>
                 <div class="page-content" id="content-payments"></div>
@@ -341,7 +344,6 @@
             </div>
         </div>
     </div>
-    <canvas id="iconCanvas" style="display:none;" width="192" height="192"></canvas>
     <script>
     (function() {
         'use strict';
@@ -368,7 +370,6 @@
             { id:'today',   label:'Сегодня' },
             { id:'week',    label:'Неделя' },
             { id:'month',   label:'Месяц' },
-            { id:'quarter', label:'Квартал' },
             { id:'year',    label:'Год' },
             { id:'custom',  label:'Свой период' },
         ];
@@ -450,7 +451,7 @@
             const bal=getWalletBalance(w.id);
             const wt=WALLET_TYPES[w.walletType]||WALLET_TYPES.cash;
             let iconClass=wt.color, iconEmoji=wt.icon;
-            if(w.walletType==='debt'){ iconClass=bal>=0?'debt':'debt negative'; iconEmoji=bal>=0?'🟢':'🔴'; }
+            if(w.walletType==='debt'){ iconClass=bal>=0?'debt':'debt negative'; iconEmoji=bal>=0?'📥':'📤'; }
             let meta='';
             if(w.walletType==='invest'&&w.monthlyIncome!=null) meta=`<div class="wallet-meta">Доход/мес: ${fmt(w.monthlyIncome)}</div>`;
             else meta=`<div class="wallet-meta">${wt.label}</div>`;
@@ -461,11 +462,12 @@
                 <button class="wallet-delete-btn" data-delwallet="${w.id}">×</button>
             </div>`;
         }
-        function OperationItem(o){
+        function OperationItem(o,showWallet){
             const isIncome=o.type==='income';
+            const meta=`${formatTime(o.date)} · ${escHtml(o.category||'—')}${showWallet?' · '+escHtml(walletName(o.walletId)):''}`;
             return `<div class="history-item" data-op-id="${o.id}">
                 <div class="history-icon ${isIncome?'income':'expense'}">${isIncome?'↑':'↓'}</div>
-                <div class="history-details"><div class="history-comment">${escHtml(o.comment||o.category||'Операция')}</div><div class="history-meta">${formatTime(o.date)} · ${escHtml(o.category||'—')}</div></div>
+                <div class="history-details"><div class="history-comment">${escHtml(o.comment||o.category||'Операция')}</div><div class="history-meta">${meta}</div></div>
                 <div class="history-amount ${isIncome?'income-amount':'expense-amount'}">${isIncome?'+':'−'}${fmt(o.amount)}</div>
             </div>`;
         }
@@ -506,11 +508,12 @@
             const bal=getWalletBalance(walletId), ops=getWalletOps(walletId);
             const wt=WALLET_TYPES[wallet.walletType]||WALLET_TYPES.cash;
             let iconEmoji=wt.icon, iconClass=wt.color;
-            if(wallet.walletType==='debt'){ iconClass=bal>=0?'debt':'debt negative'; iconEmoji=bal>=0?'🟢':'🔴'; }
+            if(wallet.walletType==='debt'){ iconClass=bal>=0?'debt':'debt negative'; iconEmoji=bal>=0?'📥':'📤'; }
             let html=`<div class="modal-handle"></div>
             <div style="display:flex;align-items:center;gap:12px;">
                 <div class="wallet-icon ${iconClass}" style="width:44px;height:44px;font-size:21px;">${iconEmoji}</div>
                 <div style="flex:1;min-width:0;"><div style="font-weight:800;font-size:20px;letter-spacing:-0.4px;">${escHtml(wallet.name)}</div><div style="font-size:14px;color:var(--text-2);">Баланс: ${fmt(bal)}</div></div>
+                <button class="header-btn ripple" id="modal-adjust-bal" aria-label="Корректировка баланса" title="Корректировка баланса">⚖️</button>
                 <button class="header-btn accent ripple" id="modal-add-op">+</button>
             </div>`;
             if(ops.length===0){ html+=`<div class="empty-state"><div class="empty-icon">📋</div><p>Нет операций</p></div>`; }
@@ -524,7 +527,30 @@
             }
             openModal(html);
             $('#modal-add-op')?.addEventListener('click',()=>openAddOperationModal(walletId,()=>openWalletModal(walletId)));
+            $('#modal-adjust-bal')?.addEventListener('click',()=>openAdjustBalanceModal(walletId,()=>openWalletModal(walletId)));
             $$('#modal-sheet .history-item').forEach(item=>item.addEventListener('click',()=>openEditOperationModal(item.dataset.opId,()=>openWalletModal(walletId))));
+        }
+        function openAdjustBalanceModal(walletId,onSaved){
+            const wallet=state.wallets.find(w=>w.id===walletId); if(!wallet)return;
+            const bal=getWalletBalance(walletId);
+            let html=`<div class="modal-handle"></div><div class="modal-title">Корректировка баланса</div>
+            <div class="field-label" style="color:var(--text-3);">${escHtml(wallet.name)} · текущий баланс ${fmt(bal)}</div>
+            <div class="field-label">Новый баланс</div>
+            <input class="modal-input" id="adj-target" placeholder="${bal}" type="number" step="any" inputmode="decimal" value="${bal}">
+            <div class="field-label" style="color:var(--text-3);line-height:1.4;">Создаст корректирующую операцию, чтобы баланс стал равен указанной сумме. Не учитывается в аналитике.</div>
+            <button class="modal-btn primary" id="btn-save-adj">Сохранить</button>
+            <button class="modal-btn secondary" id="btn-cancel-adj">Отмена</button>`;
+            openModal(html);
+            $('#btn-save-adj').addEventListener('click',()=>{
+                const target=parseFloat($('#adj-target').value);
+                if(isNaN(target)){ $('#adj-target').focus(); return; }
+                const diff=target-bal;
+                if(diff===0){ closeModal(); onSaved&&onSaved(); return; }
+                const type=diff>0?'income':'expense';
+                state.operations.push({id:uid(),walletId,type,amount:Math.abs(diff),category:'Корректировка',comment:'Корректировка баланса',date:new Date().toISOString(),exclAnalytics:true});
+                persistAll(); closeModal(); onSaved&&onSaved(); sfxAdd();
+            });
+            $('#btn-cancel-adj').addEventListener('click',closeModal);
         }
         function groupOpsByDate(ops){
             const groups={}; ops.forEach(o=>{ const l=formatDate(o.date); (groups[l]=groups[l]||[]).push(o); });
@@ -551,8 +577,8 @@
                 if(!name){ $('#wallet-name-input').focus(); return; }
                 const wallet={id:uid(),walletType:wtype,name,initialSum:sum,createdAt:new Date().toISOString()};
                 if(wtype==='invest') wallet.monthlyIncome=parseFloat($('#wallet-income-input').value)||0;
-                if(sum!==0&&wtype!=='debt') state.operations.push({id:uid(),walletId:wallet.id,type:'income',amount:Math.abs(sum),category:'Начальный баланс',comment:'Начальный баланс',date:new Date().toISOString()});
-                if(wtype==='debt'&&sum!==0){ const t=sum>0?'income':'expense'; state.operations.push({id:uid(),walletId:wallet.id,type:t,amount:Math.abs(sum),category:t==='income'?'Долг мне':'Мой долг',comment:'Начальный долг',date:new Date().toISOString()}); }
+                if(sum!==0&&wtype!=='debt') state.operations.push({id:uid(),walletId:wallet.id,type:'income',amount:Math.abs(sum),category:'Начальный баланс',comment:'Начальный баланс',date:new Date().toISOString(),exclAnalytics:true});
+                if(wtype==='debt'&&sum!==0){ const t=sum>0?'income':'expense'; state.operations.push({id:uid(),walletId:wallet.id,type:t,amount:Math.abs(sum),category:t==='income'?'Долг мне':'Мой долг',comment:'Начальный долг',date:new Date().toISOString(),exclAnalytics:true}); }
                 state.wallets.push(wallet); persistAll(); closeModal(); renderHomePage(); sfxAdd();
             });
             $('#btn-cancel-modal').addEventListener('click',closeModal);
@@ -634,7 +660,6 @@
             if(period==='today'){ start=new Date(now.getFullYear(),now.getMonth(),now.getDate()); }
             else if(period==='week'){ const day=now.getDay(); const diff=now.getDate()-day+(day===0?-6:1); start=new Date(now.getFullYear(),now.getMonth(),diff); }
             else if(period==='month'){ start=new Date(now.getFullYear(),now.getMonth(),1); }
-            else if(period==='quarter'){ const q=Math.floor(now.getMonth()/3); start=new Date(now.getFullYear(),q*3,1); }
             else if(period==='year'){ start=new Date(now.getFullYear(),0,1); }
             else if(period==='custom'){ start=state.analytics.customStart?new Date(state.analytics.customStart):new Date(now.getFullYear(),now.getMonth(),1); end=state.analytics.customEnd?new Date(state.analytics.customEnd):new Date(); }
             else start=new Date(now.getFullYear(),now.getMonth(),1);
@@ -645,6 +670,7 @@
         function filterOps(typeMatch,start,end){
             const a=state.analytics;
             return state.operations.filter(o=>{
+                if(o.exclAnalytics) return false;
                 if(typeMatch && o.type!==a.type) return false;
                 const t=new Date(o.date).getTime();
                 if(t<start.getTime()||t>end.getTime()) return false;
@@ -789,6 +815,17 @@
             // export
             html+=`<div class="export-row animate-in"><button class="modal-btn secondary" id="exp-csv">Экспорт CSV</button><button class="modal-btn secondary" id="exp-json">Экспорт JSON</button></div>`;
 
+            // recent operations history
+            const histOps=state.operations.filter(o=>!o.exclAnalytics).sort((x,y)=>new Date(y.date)-new Date(x.date));
+            const recent=histOps.slice(0,5);
+            html+=`<div class="card animate-in"><div class="section-label" style="padding-left:0;">История операций</div>`;
+            if(recent.length===0){ html+=`<div class="empty-state" style="padding:24px;"><div class="empty-icon">🧾</div><p>Нет операций</p></div>`; }
+            else{
+                recent.forEach(o=>{ html+=OperationItem(o,true); });
+                if(histOps.length>5) html+=`<button class="modal-btn secondary" id="show-all-ops" style="margin-top:8px;">Показать все · ${histOps.length}</button>`;
+            }
+            html+=`</div>`;
+
             html+='</div>';
             $('#analytics-body').innerHTML=html;
 
@@ -800,6 +837,22 @@
             $$('.top-cat-row').forEach(row=>row.addEventListener('click',()=>openCategoryDetail(row.dataset.cat,start,end)));
             $('#exp-csv').addEventListener('click',()=>exportData('csv',ops));
             $('#exp-json').addEventListener('click',()=>exportData('json',ops));
+            $$('#analytics-body > .stack > .card:last-child .history-item').forEach(item=>item.addEventListener('click',()=>openEditOperationModal(item.dataset.opId,()=>renderAnalyticsData())));
+            $('#show-all-ops')?.addEventListener('click',openFullHistory);
+        }
+        function openFullHistory(){
+            const ops=state.operations.filter(o=>!o.exclAnalytics).sort((x,y)=>new Date(y.date)-new Date(x.date));
+            let html=`<div class="modal-handle"></div><div class="modal-title">История операций</div>
+            <div class="field-label" style="color:var(--text-3);">${ops.length} операций · нажмите для редактирования</div>`;
+            if(ops.length===0){ html+=`<div class="empty-state"><div class="empty-icon">🧾</div><p>Нет операций</p></div>`; }
+            else{
+                const grouped=groupOpsByDate(ops);
+                for(const [label,items] of Object.entries(grouped)){ html+=`<div><div class="history-group-title">${label}</div>`; items.forEach(o=>{ html+=OperationItem(o,true); }); html+=`</div>`; }
+            }
+            html+=`<button class="modal-btn secondary" id="fh-close">Закрыть</button>`;
+            openModal(html);
+            $$('#modal-sheet .history-item').forEach(item=>item.addEventListener('click',()=>openEditOperationModal(item.dataset.opId,()=>{ renderAnalyticsData(); openFullHistory(); })));
+            $('#fh-close').addEventListener('click',closeModal);
         }
 
         function setupCanvas(canvas,cssW,cssH){
@@ -1029,24 +1082,15 @@
         /* ============================================================
            PWA
         ============================================================ */
-        function generateIcon(){
-            const canvas=document.getElementById('iconCanvas'); const ctx=canvas.getContext('2d'); const size=192;
-            canvas.width=size; canvas.height=size;
-            ctx.beginPath(); ctx.moveTo(40,0); ctx.lineTo(size-40,0); ctx.quadraticCurveTo(size,0,size,40); ctx.lineTo(size,size-40); ctx.quadraticCurveTo(size,size,size-40,size); ctx.lineTo(40,size); ctx.quadraticCurveTo(0,size,0,size-40); ctx.lineTo(0,40); ctx.quadraticCurveTo(0,0,40,0); ctx.closePath(); ctx.clip();
-            const g=ctx.createLinearGradient(0,0,size,size); g.addColorStop(0,'#5e7dff'); g.addColorStop(0.5,'#4a6cf7'); g.addColorStop(1,'#3b5de7'); ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
-            ctx.fillStyle='#ffffff'; ctx.font='bold 104px -apple-system,"Helvetica Neue",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('₽',size/2,size/2+4);
-            return canvas.toDataURL('image/png');
-        }
-        try{
-            const iconDataUrl=generateIcon();
-            const manifest={ name:'Финансы', short_name:'Финансы', start_url:location.href, display:'standalone', orientation:'portrait', background_color:'#0a0b10', theme_color:'#4a6cf7', icons:[{src:iconDataUrl,sizes:'192x192',type:'image/png',purpose:'any maskable'}] };
-            const link=document.createElement('link'); link.rel='manifest'; link.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'})); document.head.appendChild(link);
-        }catch{}
+        // Register the real service worker for full offline support.
+        // It precaches the app shell (index.html + manifest + icon), so the app
+        // launches and runs with no network connection once it has been opened once.
         if('serviceWorker' in navigator){
-            const swBlob=new Blob([`const CACHE_NAME='finance-v5';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll([self.location.href]).catch(()=>{})));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim());});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{if(resp&&resp.status===200){caches.open(CACHE_NAME).then(c=>c.put(e.request,resp.clone()));}return resp;}).catch(()=>caches.match(e.request))));});`],{type:'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+            window.addEventListener('load',()=>{
+                navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});
+            });
         }
-        console.log('[v0] Финансы — обновлённый дизайн и аналитика готовы');
+        console.log('[v0] Финансы — обновлённый дизайн, аналитика и офлайн-режим готовы');
     })();
     </script>
 </body>
